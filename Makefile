@@ -105,7 +105,7 @@ linux-appimage-prepare:linux-prepare
 linux-rpm-prepare:linux-prepare
 linux-deb-prepare:linux-prepare
 
-android-prepare:common-prepare android-libs	
+android-prepare:common-prepare build-android-libs
 android-apk-prepare:android-prepare
 android-aab-prepare:android-prepare
 
