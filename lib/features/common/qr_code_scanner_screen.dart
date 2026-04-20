@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // // const permissions = [Permissions.CAMERA];
 // // const permissionGroup = [PermissionGroup.Camera];
@@ -402,12 +403,26 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class QrCodeScannerDialog extends ConsumerWidget {
   const QrCodeScannerDialog({super.key});
 
+  Future<bool> _requestCameraPermission() async {
+    final status = await Permission.camera.request();
+    return status.isGranted;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.read(translationsProvider).requireValue;
     return Scaffold(
       body: SafeArea(
-        child: Stack(
+        child: FutureBuilder<bool>(
+          future: _requestCameraPermission(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.data != true) {
+              return Center(child: Text(t.common.msg.permission.denied));
+            }
+            return Stack(
           alignment: Alignment.center,
           children: [
             MobileScanner(
@@ -453,6 +468,8 @@ class QrCodeScannerDialog extends ConsumerWidget {
               ),
             ),
           ],
+        );
+          },
         ),
       ),
     );
